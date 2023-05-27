@@ -3,14 +3,9 @@ import { ref, Ref, reactive } from 'vue';
 import NodeContainer from './component/NodeContainer.vue';
 
 import { Node, NodeTemp, TextNode, StyleItem } from './model/Node';
+import template from './model/template';
 
 const mainContainer = ref();
-
-const nodeTemps: NodeTemp[] = [
-  { label: 'Text', width: 256, height: 32, element: 'div', html: 'text', styles: [] },
-  { label: 'Button', width: 128, height: 44, element: 'button', html: 'button', styles: [] },
-  { label: 'Input', width: 256, height: 44, element: 'input', html: '', styles: [] }
-]
 
 const currentNode: Ref<Node | null> = ref(null);
 const nodes: Node[] = reactive([
@@ -71,8 +66,10 @@ function buildHandle() {
   <div id="container">
     <div id="nodes-sidebar">
       <button @click="buildHandle"> Build and Print </button>
-
-      <button v-for="nodeTemp in nodeTemps" @click="addNodeHandle(nodeTemp)">{{ nodeTemp.label }}</button>
+      <div v-for="item in template">
+        <p>{{ item.label }}</p>
+        <button v-for="nodeTemp in item.templates" @click="addNodeHandle(nodeTemp)">{{ nodeTemp.label }}</button>
+      </div>
     </div>
     <div id="main" ref="mainContainer">
       <NodeContainer
