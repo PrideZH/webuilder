@@ -5,6 +5,7 @@ import { Box } from '../model/Node';
 interface Props {
   box: Box;
   container: HTMLElement;
+  strategy?: (box: Box) => Box; // 扩展接口
 }
 const props = defineProps<Props>();
 
@@ -41,6 +42,10 @@ class MoveEvents {
 
     currentBox.value.x = Math.min(Math.max(currentBox.value.x, 0), props.container.clientWidth - currentBox.value.width);
     currentBox.value.y = Math.min(Math.max(currentBox.value.y, 0), props.container.clientHeight - currentBox.value.height);
+
+    if (props.strategy) {
+        currentBox.value = props.strategy(currentBox.value);
+    }
 
     refresh();
   }
@@ -79,6 +84,10 @@ class ResizeEvents {
     }
     if (currentBox.value.y + currentBox.value.height > props.container.clientHeight) {
         currentBox.value.height = props.container.clientHeight - currentBox.value.y;
+    }
+
+    if (props.strategy) {
+        currentBox.value = props.strategy(currentBox.value);
     }
 
     refresh();
