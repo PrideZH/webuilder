@@ -4,7 +4,7 @@ import { Box } from '../model/Node';
 
 interface Props {
   box: Box;
-  container: any;
+  container: HTMLElement;
 }
 const props = defineProps<Props>();
 
@@ -39,6 +39,9 @@ class MoveEvents {
     currentBox.value.x = event.clientX - MoveEvents.offsetX;
     currentBox.value.y = event.clientY - MoveEvents.offsetY;
 
+    currentBox.value.x = Math.min(Math.max(currentBox.value.x, 0), props.container.clientWidth - currentBox.value.width);
+    currentBox.value.y = Math.min(Math.max(currentBox.value.y, 0), props.container.clientHeight - currentBox.value.height);
+
     refresh();
   }
 
@@ -68,8 +71,15 @@ class ResizeEvents {
   }
 
   static handleMouseMove(event: MouseEvent) {
-    currentBox.value.width = Math.max(ResizeEvents.sourceWidth + event.clientX - ResizeEvents.sourceX, 4) ;
-    currentBox.value.height = Math.max(ResizeEvents.sourceHeight + event.clientY - ResizeEvents.sourceY, 4) ;
+    currentBox.value.width = Math.max(ResizeEvents.sourceWidth + event.clientX - ResizeEvents.sourceX, 4);
+    currentBox.value.height = Math.max(ResizeEvents.sourceHeight + event.clientY - ResizeEvents.sourceY, 4);
+
+    if (currentBox.value.x + currentBox.value.width > props.container.clientWidth) {
+        currentBox.value.width = props.container.clientWidth - currentBox.value.x;
+    }
+    if (currentBox.value.y + currentBox.value.height > props.container.clientHeight) {
+        currentBox.value.height = props.container.clientHeight - currentBox.value.y;
+    }
 
     refresh();
   }
