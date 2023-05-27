@@ -77,9 +77,8 @@ function buildHandle() {
     <div id="main" ref="mainContainer">
       <NodeContainer
           v-for="node in nodes" :key="node.id"
-          :node="node" :container="mainContainer"
-          @fetch="n => currentNode = n"
-          v-html="buildhtml(node)">
+          :node="node" :container="mainContainer" :html="buildhtml(node)"
+          @fetch="n => currentNode = n">
       </NodeContainer>
     </div>
     <div id="node-console">
