@@ -2,21 +2,13 @@
 import { ref, Ref, reactive } from 'vue';
 import NodeContainer from './component/NodeContainer.vue';
 
-import { Node, NodeTemp, TextNode, StyleItem } from './model/Node';
+import { Node, NodeTemp, Type, SelectInput } from './model/Node';
 import template from './model/template';
 
 const mainContainer = ref();
 
 const currentNode: Ref<Node | null> = ref(null);
-const nodes: Node[] = reactive([
-  // { id: crypto.randomUUID(), x: 0, y: 0, width: 100, height: 100, element: 'div', html: '123', styles: [
-  //   { key: 'background-color', value: 'blue' }
-  // ] },
-  // { id: crypto.randomUUID(), x: 400, y: 200, width: 100, height: 20, element: 'input', html: '', styles: [] },
-  // { id: crypto.randomUUID(), x: 200, y: 200, width: 100, height: 44, element: 'button', html: 'Login', styles: [
-  //   { key: 'border-radius', value: '32px' }
-  // ] }
-]);
+const nodes: Node[] = reactive([]);
 
 function addNodeHandle(nodeTemp: NodeTemp) {
   nodes.push({
@@ -27,23 +19,20 @@ function addNodeHandle(nodeTemp: NodeTemp) {
   })
 }
 
+/**
+ * build html of single node
+ * @param node node
+ */
 function buildhtml(node: Node): string {
   let res: string = '';
   res += '<' + node.element + ' style="';
   res += 'width: 100%; height: 100%;'
-  node.styles.forEach((style: StyleItem) => {
-    res += style.key + ": " + style.value + ";"
+  node.styles.forEach((value: string, key: string) => {
+    res += key + ": " + value + ";"
   });
   res += '">';
-  res += node.html;
+  res += node.content;
   res += '</' + node.element + '>\n';
-
-  // 属性拓展
-  if (node.element == 'text') {
-    node = <TextNode> node;
-  } else if (node.element == 'button') {
-  }
-
   return res;
 }
 
@@ -79,13 +68,34 @@ function buildHandle() {
       </NodeContainer>
     </div>
     <div id="node-console">
-      <div>x: {{ currentNode?.x }}</div>
-      <div>y: {{ currentNode?.y }}</div>
-      <div>width: {{ currentNode?.width }}</div>
-      <div>height: {{ currentNode?.height }}</div>
-      <div>property:</div>
-      <div>style:</div>
-      <div>event:</div>
+      <template v-if="currentNode">
+        <div>x: {{ currentNode.x }}</div>
+        <div>y: {{ currentNode.y }}</div>
+        <div>width: {{ currentNode.width }}</div>
+        <div>height: {{ currentNode.height }}</div>
+        <div>property:</div>
+        <div class="params-item" v-for="param in currentNode.params">
+          <!-- TODO: v-if="param instanceof InputType" -->
+          <template v-if="param.type.type == Type.text">
+            <div>{{ param.label }}</div>
+            <input style="width: 100%;" :value="param.value" @change="(e: Event) => {
+              if (!currentNode) return;
+              param.value = (<HTMLInputElement>e.target).value;
+              param.handle(currentNode, param.value)
+            }">
+          </template>
+          <template v-else-if="param.type.type == Type.select">
+            <div>{{ param.label }}</div>
+            <select style="width: 100%;" @change="(e: Event) => {
+              if (!currentNode) return;
+              param.handle(currentNode, (<HTMLInputElement>e.target).value)
+            }">
+              <option v-for="option in (<SelectInput>param.type).options" :value="option.value">{{ option.label }}</option>
+            </select>
+          </template>
+        </div>
+        <div>event:</div>
+      </template>
     </div>
   </div>
 </template>
@@ -123,5 +133,9 @@ html, body, #app {
   width: 20%;
   min-width: 100px;
   height: 100%;
+}
+
+.params-item {
+  display: flex;
 }
 </style>

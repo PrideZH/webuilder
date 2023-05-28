@@ -8,11 +8,13 @@ interface Props {
   container: any;
 }
 defineProps<Props>();
+
+const emits = defineEmits(['fetch']);
 </script>
 
 <template>
-  <DragBox :box="node" :container="container" >
-    <div class="content" v-html="html"></div>
+  <DragBox :box="node" :container="container">
+    <div class="content" v-html="html" @mousedown="() => emits('fetch', node)"></div>
   </DragBox>
 </template>
 
